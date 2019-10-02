@@ -10,8 +10,17 @@
     "authors": [
         {
             "name": "Steven Straker",
-            "email": "contact@strakez.com"
+            "email": "contact@strakez.com",
+            "role": "Developer"
         }
     ],
+    "autoload": {
+        "psr-4": {
+            "SCS\\": "app/SCS"
+        },
+        "files": [
+            "app/Utility/helpers.php"
+        ]
+    },
     "minimum-stability": "stable"
 }
