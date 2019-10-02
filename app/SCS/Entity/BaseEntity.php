@@ -79,7 +79,6 @@ abstract class BaseEntity
         $resource_base = static::$_override_resource_base ?: strtolower(basename(get_called_class()));
         $resource_key = $resource_key ?: $resource_base . 's';
         $path = self::RESOURCE . $resource_base . '/' . $resource_key . '.json';
-        echo $path . PHP_EOL;
 
         // retrieve json from server path
         if($json = file_get_contents($path)){
