@@ -19,11 +19,11 @@ abstract class BaseEntity
     protected $root;
     protected $json;
     protected $id;
+    protected $empty = true;
 
     /**
      * BaseEntity constructor.
      * @param $id
-     * @throws \ErrorException
      */
     public function __construct( $id )
     {
@@ -34,20 +34,26 @@ abstract class BaseEntity
     /**
      * @param string $id
      * @return array
-     * @throws \ErrorException
      */
     public function getByKey( $id = '' )
     {
-        if(empty($id))
-            throw new \ErrorException('ID is required');
+        if(empty($id)){
+            $this->empty = true;
+        }
 
         if( $this->json = static::getJsonFromResource($id) ){
             if( $root = static::extractJson($this->json) ){
                 $this->root = $root;
+                $this->empty = false;
             }
         }
 
         return [];
+    }
+
+    public function isEmpty()
+    {
+        return $this->empty;
     }
 
     public function getJson()
@@ -71,7 +77,10 @@ abstract class BaseEntity
      */
     public function __get($name )
     {
-        return $this->find( $name ) ?: $this->{$name};
+        return $this->find( $name )
+            ?: (
+                property_exists( $this, $name) ? $this->{$name} : null
+            );
     }
 
     /**
