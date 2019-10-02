@@ -8,9 +8,9 @@
 
 include_once dirname(__DIR__) . '/vendor/autoload.php';
 
-$r = \SCS\Course::getJsonFromResource();
+$r = \SCS\Entity\Course::getJsonFromResource();
 ##var_dump(strlen($c));
-$l = \SCS\Course::getList();
+$l = \SCS\Entity\Course::getList();
 #print_r($l);
-$c = new \SCS\Course('1860');
+$c = new \SCS\Entity\Course('1860');
 var_dump(($c->d_course_id));
