@@ -38,4 +38,39 @@ class Certificate extends BaseEntity
         }
         return array_values($list);
     }
+
+    public function courses()
+    {
+        $courses = [];
+
+        foreach ((array)$this->required_courses as $group) {
+            if (property_exists($group, 'courses')) {
+                foreach ($group->courses as $course) {
+                    if (!array_key_exists($course->d_course_code, $courses)) {
+                        if ($entity = new Course($course->d_course_code)) {
+                            if( $sections = $entity->sections() ){
+                                $courses[$course->d_course_code] = $sections;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        foreach ((array)$this->elective_courses as $group) {
+            if (property_exists($group, 'courses')) {
+                foreach ($group->courses as $course) {
+                    if (!array_key_exists($course->d_course_code, $courses)) {
+                        if ($entity = new Course($course->d_course_code)) {
+                            if( $sections = $entity->sections() ){
+                                $courses[$course->d_course_code] = $sections;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return array_values($courses);
+    }
 }
