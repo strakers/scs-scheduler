@@ -6,10 +6,10 @@
  * Time: 11:27 PM
  */
 
-namespace SCS;
+namespace SCS\Entity;
 
 
-class Course extends Entity
+class Course extends BaseEntity
 {
     protected static $_key = 'd_course_code';
 }

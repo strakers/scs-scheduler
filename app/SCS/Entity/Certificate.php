@@ -6,10 +6,10 @@
  * Time: 12:26 AM
  */
 
-namespace SCS;
+namespace SCS\Entity;
 
 
-class Certificate extends Entity
+class Certificate extends BaseEntity
 {
     protected static $_key = 'd_certificate_code';
 }

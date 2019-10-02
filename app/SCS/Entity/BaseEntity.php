@@ -6,10 +6,10 @@
  * Time: 11:12 PM
  */
 
-namespace SCS;
+namespace SCS\Entity;
 
 
-abstract class Entity
+abstract class BaseEntity
 {
     const RESOURCE = 'https://learn.utoronto.ca/sites/default/files/mimr/';
     protected static $_override_resource_base = '';
@@ -21,7 +21,7 @@ abstract class Entity
     protected $id;
 
     /**
-     * Entity constructor.
+     * BaseEntity constructor.
      * @param $id
      * @throws \ErrorException
      */
