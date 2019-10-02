@@ -50,6 +50,11 @@ abstract class BaseEntity
         return [];
     }
 
+    public function getJson()
+    {
+        return $this->json;
+    }
+
     /**
      * @param $name
      * @param string $default
