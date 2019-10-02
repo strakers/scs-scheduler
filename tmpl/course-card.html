@@ -1,0 +1,41 @@
+    <div class="card text-center" ng-init="$ctrl.course = $ctrl.profile.code()">
+        <div class="card-header text-left">
+            <i class="fa fa-book"></i> Course
+        </div>
+        <div class="card-body">
+            <h4 class="card-title">{{ $ctrl.profile.code() }} {{ $ctrl.profile.get('title') }}</h4>
+            <p class="card-text">{{course_title}}</p>
+        </div>
+        <ul class="list-group list-group-flush" ng-show="$ctrl.profile.sectionList().length">
+            <li class="list-group-item">
+                <label>Select a Section</label>
+                <div class="form-group">
+                    <div class="input-group">
+                        <span class="input-group-addon" id="basic-addon2"><i class="fa fa-tag"></i></span>
+                        <select class="form-control" aria-label="Section Code" aria-describedby="basic-addon2" id="section_codes" ng-model="$ctrl.course_section" ng-change="$ctrl.selectSection()">
+                            <option ng-repeat="section_code in $ctrl.profile.sectionList()" ng-value="section_code">{{ section_code }} - {{ $ctrl.profile.section(section_code).get('delivery') }}</option>
+                        </select>
+                    </div>
+                </div>
+            </li>
+            <li class="list-group-item" ng-show="$ctrl.course_section"><strong>{{ $ctrl.section.get('delivery') }}</strong><span ng-show="$ctrl.section.campus()"> ({{ $ctrl.section.campus() }})</span></li>
+            <li class="list-group-item" ng-repeat="sch in $ctrl.schedules" ng-hide="sch.isTBA">
+                <div class="pull-left">
+                    <i class="fa fa-calendar"></i>
+                </div>
+                <div>
+                    <span>{{ sch.startDate | moment }}</span><span ng-if="sch.endDate"> - {{ sch.endDate | moment }}</span>
+                    <br ng-show="!!sch.weekdays" /><span class="text-info">{{ sch.weekdays }}</span><span>{{ (sch.period ? ( sch.weekdays ? ' | ' : '' ) + sch.period : '' ) }}</span>
+                </div>
+            </li>
+        </ul>
+        <ul class="list-group list-group-flush" ng-show="!$ctrl.profile.sectionList().length">
+            <li class="list-group-item">
+                <span class="text-danger">No schedules are currently available for this course.</span>
+            </li>
+        </ul>
+        <div class="card-body text-right card-action-group">
+            <!--a href="#" class="card-link btn btn-info course-change"><i class="fa fa-edit"></i> Change</a-->
+            <a href class="card-link btn btn-danger course-remove" ng-click="$ctrl.removeCourse()"><i class="fa fa-remove"></i> Remove</a>
+        </div>
+    </div>

@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>NG Course Scheduler</title>
+    <link rel="stylesheet" href="css/materia/bootstrap.min.css" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/sweetalert2/6.6.0/sweetalert2.min.css" crossorigin="anonymous" />
+    <style type="text/css">
+        .card {
+            margin-bottom: 2em;
+        }
+    </style>
+</head>
+<body ng-app="SchedulerApp">
+
+<div ng-controller="MasterController as ctrl">
+
+    <nav>
+        <ul class="nav nav-tabs nav-fill" id="myTab" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">Select Courses</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">Compare Schedules</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="contact-tab" data-toggle="tab" href="#contact" role="tab" aria-controls="contact" aria-selected="false">View Data</a>
+            </li>
+        </ul>
+    </nav>
+
+    <br />
+
+    <div role="main" class="container-fluid">
+        <div class="row">
+            <div class="col-sm">
+                <div class="tab-content" id="tabSections">
+
+                    <!-- TAB -------------->
+                    <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+
+                        <form name="course_finder" ng-submit="retrieveCourse()">
+                            <div class="input-group col-sm-12 col-md-6 col-lg-4 col-xl-3" id="step1">
+                                <span class="input-group-addon" id="basic-addon1"><i class="fa fa-hashtag fa-fw"></i></span>
+                                <input type="text" class="form-control" placeholder="4-digit Course Code" aria-label="Course Code" aria-describedby="basic-addon1" ng-model="course_code" pattern="[0-9]{4}">
+
+                                <span class="input-group-btn">
+                                    <button class="btn btn-primary" type="submit" id="course_code_finder" xng-disabled='course_finder.$invalid || !course_code'><i class="fa fa-plus"></i> Add Course</button>
+                                </span>
+                            </div>
+                            <pre ng-if="ctrl.debugging">{{ course_finder | json }}</pre>
+                        </form>
+                        <br />
+
+                        <div class="row" id="course_section_container">
+                            <course-card ng-repeat="course in courses | reverse" profile="course" class="col-sm-6 col-md-4 col-lg-3 col-xl-2 course-card"></course-card>
+                        </div>
+
+                    </div>
+
+                    <!-- TAB -------------->
+                    <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+                        <div class="col-sm-12">
+                            <table class="table table-bordered  table-responsive-sm">
+                                <thead class="thead-inverse">
+                                    <tr>
+                                        <th class="text-center">Course(s)</th>
+                                        <th class="text-center">Sun</th>
+                                        <th class="text-center">Mon</th>
+                                        <th class="text-center">Tue</th>
+                                        <th class="text-center">Wed</th>
+                                        <th class="text-center">Thu</th>
+                                        <th class="text-center">Fri</th>
+                                        <th class="text-center">Sat</th>
+                                    </tr>
+                                </thead>
+                                <tbody ng-repeat="item in masterList">
+                                    <tr>
+                                        <td class="text-center">{{ item.code + '-' + item.section }}</td>
+
+                                        <td class="text-center" ng-repeat="letter in letters" ng-class="{ 'bg-warning': item.days[letter] }">
+                                            <div ng-if="item.days[letter]">
+                                                <span><i class="fa fa-long-arrow-right fa-fw"></i><i class="fa fa-clock-o fa-fw"></i> {{ item.schedule.startDate | moment }}</span>
+                                                <span ng-if="item.schedule.endDate"><br /><i class="fa fa-long-arrow-left fa-fw"></i><i class="fa fa-clock-o fa-fw"></i> {{ item.schedule.endDate | moment }}</span>
+                                                <hr />
+                                                <strong>{{ item.schedule.period }}</strong>
+                                                <hr />
+                                                <span>{{ item.campus }}</span>
+                                            </div>
+                                        </td>
+
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- TAB -------------->
+                    <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">
+                        <pre><code>{{ masterList | json }}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script src="https://code.jquery.com/jquery-3.2.1.min.js" type="text/javascript" crossorigin="anonymous"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" type="text/javascript" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" type="text/javascript" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js" type="text/javascript" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.19.1/moment.min.js" type="text/javascript" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/sweetalert2/6.6.0/sweetalert2.min.js" type="text/javascript" crossorigin="anonymous"></script>
+<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular-route.min.js" type="text/javascript" crossorigin="anonymous"></script>
+<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular-sanitize.min.js" type="text/javascript" crossorigin="anonymous"></script>
+<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular-animate.min.js" type="text/javascript" crossorigin="anonymous"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/ng-dialog/0.5.9/js/ngDialog.min.js" type="text/javascript" crossorigin="anonymous"></script>
+<!--script src="js/ui-bootstrap-2.5.0.min.js" type="text/javascript" crossorigin="anonymous"></script-->
+<script src="js/ui-bootstrap-tpls-2.5.0.min.js" type="text/javascript" crossorigin="anonymous"></script>
+<script type="text/javascript">
+
+    function CourseObj( data ){
+        if( !data ) throw new TypeError("Null data cannot be passed.");
+        if( data.constructor !== Object.prototype.constructor ) throw new TypeError("Data must be an Object.");
+
+        this._code = data['c'] ? data['c'].toString() : undefined;
+
+        // retrieve course data object or its properties (when specified)
+        this.get = function( prop ){
+            if( prop ){
+
+                // define aliases
+                switch( prop ){
+                    case 'id' :
+                    case 'index' : prop = 'i'; break;
+                    case 'code' : prop = 'c'; break;
+                    case 'title' :
+                    case 'name' : prop = 'n'; break;
+                    case 'sections' : prop = 'se'; break;
+                    case 'availability' : prop = 'av'; break;
+                    case 'keywords' : prop = 'k'; break;
+                }
+
+                if( prop in data ){
+                    // return course data property value
+                    return data[prop];
+                }
+
+                return false;
+            }
+
+            // return course data object
+            return data;
+        };
+
+        // retrieve course code
+        this.code = function(){
+            return this._code;
+        };
+
+        // retrieve section data object
+        this.section = function( code ){
+
+            // coerce code to string
+            code = code.toString();
+
+            // if code is valid section code
+            if( code.match(/^\d{3}$/) && data.se && data.se.length ){
+
+                // loop to find code
+                for(var i=0; i<data.se.length;++i){
+                    if( code === data.se[i].c.toString() ){
+                        return new SectionObj( data.se[i], this._code );
+                    }
+                }
+            }
+
+            return false;
+        };
+
+        // retrieve list of section data objects
+        this.sections = function(){
+            var sections = [];
+            if( data.se && data.se.length ){
+                for(var i=0,s; i<data.se.length;++i){
+                    s = new SectionObj( data.se[i], this._code );
+                    sections.push(s);
+                }
+            }
+            return sections;
+        };
+
+        // retrieve array of section codes for a course
+        this.sectionList = function( includeTBAOnlySections ){
+
+            var sections = data['se'];
+
+            // exclude sections which only contain TBA schedules
+            // if(!includeTBAOnlySections)
+                sections = _.filter(sections,function(s){ return _.filter(s.s, function(sch){ return sch.dt !== 'Date and Time TBA'; }).length ; });
+
+            // if sections exist, return list of section codes
+            if( sections ) {
+                return _.map(sections, function (a) {
+                    return a.c.toString();
+                });
+            }
+
+            // available sections do not exist
+            return [];
+        };
+
+        // add schedule method to data
+        this.schedules = function( code ){
+
+            // coerce code to string
+            code = code.toString();
+
+            // if code is valid section code
+            if( code.match(/^\d{3}$/) && data.se && data.se.length ){
+
+                // loop to find code
+                for(var i=0; i<data.se.length;++i){
+                    if( code === data.se[i].c.toString() ){
+                        return this._convertSchedules(data.se[i].s, data.se[i].dm);
+                    }
+                }
+            }
+
+            return false;
+        };
+
+        this._parseWeekdays = function( days ){
+            var map = '';
+            for(var i=0;i<days.length;++i){
+                switch( days[i]){
+                    case 'Saturday': map+= 'S'; break;
+                    case 'Sunday': map+= 'D'; break;
+                    case 'Monday': map+= 'M'; break;
+                    case 'Tuesday': map+= 'T'; break;
+                    case 'Wednesday': map+= 'W'; break;
+                    case 'Thursday': map+= 'R'; break;
+                    case 'Friday': map+= 'F'; break;
+                }
+            }
+            return map;
+        };
+        this._convertSchedules = function( data, delivery ){
+
+            if( !data ) throw new TypeError("Null data cannot be passed.");
+            if( data.constructor !== Array.prototype.constructor ) throw new TypeError("Data must be an Array.");
+
+            var schedules = [], schedule;
+
+            for(var i=0,sch,matches;i<data.length;++i){
+                schedule = {};
+                sch = data[i];
+
+                console.log('out sch',sch);
+
+                // get class start and end dates
+                matches = sch.dt.match(/^(\d{2} \w{3} \d{4}) ?-? ?(\d{2} \w{3} \d{4})?/);
+                if( matches ) matches.shift();
+                schedule.startDate = matches && matches[0] ? moment(matches[0], 'DD MMM YYYY') : null;
+                schedule.endDate = matches && matches[1] ? moment(matches[1], 'DD MMM YYYY') : null;
+
+                // check if is TBA
+                schedule.isTBA = ( sch.dt === 'Date and Time TBA' );
+
+                // get class time period duration
+                schedule.period = sch.t;
+
+                // get class days of week
+                schedule.weekdays = this._parseWeekdays( sch.dw );
+
+                if( delivery ) schedule.delivery = delivery;
+
+                schedules.push( schedule );
+            }
+
+            return schedules;
+        };
+    };
+    function SectionObj( data, courseCode ){
+        courseCode = courseCode ? courseCode.toString() : '';
+        if( !data ) throw new TypeError("Null data cannot be passed.");
+        if( data.constructor !== Object.prototype.constructor ) throw new TypeError("Data must be an Object.");
+        if( !courseCode || !courseCode.match(/^\d{4}$/) ) throw new TypeError("Requires valid course code.");
+
+        this._code = data['c'] ? data['c'].toString() : undefined;
+        this._fullCode = this._code ? courseCode + '-' + this._code : undefined;
+
+        this.get = function( prop ){
+            if( prop ){
+
+                // define aliases
+                switch( prop ){
+                    case 'id' :
+                    case 'index' : prop = 'i'; break;
+                    case 'code' : prop = 'c'; break;
+                    case 'title' :
+                    case 'action' : prop = 'ac'; break;
+                    case 'schedules' : prop = 's'; break;
+                    case 'availability' : prop = 'av'; break;
+                    case 'delivery' : prop = 'dm'; break;
+                    case 'isPublic' : prop = 'pe'; break;
+                    case 'campus' : prop = 'ca'; break;
+                    case 'cost' :
+                    case 'fee' : prop = 'f'; break;
+                }
+
+                // return course data property value
+                if( prop in data ){
+                    return data[prop];
+                }
+
+                return false;
+            }
+
+            // return course data object
+            return data;
+        };
+
+        this.course = function(){
+            return $sch.course( courseCode );
+        };
+
+        this.code = function(){
+            return this._fullCode;
+        };
+
+        this.title = function(){
+            return this.course().get('title');
+        };
+
+        this.campus = function(){
+            var campus = this.get('campus');
+            return campus ? campus.n : '';
+        };
+
+        // add schedule method to data
+        this.schedules = function(){
+
+            // coerce code to string
+            code = this._code;
+
+            // if code is valid section code
+            if( code.match(/^\d{3}$/) && data.s && data.s.length ){
+
+                return this._convertSchedules(data.s);
+            }
+
+            return false;
+        };
+    };
+
+    // begin angular
+    var app = angular.module('SchedulerApp', ['ngAnimate','ui.bootstrap']);
+    //var app = angular.module('SchedulerApp', ['ngAnimate']);
+    //var app = angular.module('SchedulerApp', []);
+
+    app.factory("$profile", function($q, $http){
+        return {
+            get: function( code ){
+                if( code && code.match(/^\d{4}$/) ) {
+                    return $http.get('search.php?c=' + code);
+                }
+                else {
+                    var error;
+                    error = {
+                        statusText: 'Uh oh!',
+                        status: 400,
+                        data: {
+                            text: 'Course code is invalid'
+                        }
+                    };
+                    if( !code ){
+                        error.data.text = 'Please first enter a course code';
+                    }
+                    return $q.reject(error);
+                }
+            }
+        }
+    });
+
+    app.factory("$storage", function($q, $http){
+        return {
+            _store: {},
+            get: function( code ){
+                if( code && code.match(/^\d{4}$/) ) {
+                    if( this._store[ code ] ){
+                        return this._store[ code ];
+                    }
+                }
+                else {
+                    // error code
+                }
+                return null;
+            },
+            set: function( code, data ){
+                if( code && code.match(/^\d{4}$/) ) {
+                    this._store[ code ] = new CourseObj( data ) ;
+                    return true;
+                }
+                else {
+                    // error code
+                }
+                return false;
+            }
+        }
+    });
+
+    app.component('courseCard', {
+        templateUrl: 'tmpl/course-card2.html',
+        controller: function( $scope ){
+
+            var ctrl = this, profile = $scope.$ctrl.profile;
+            ctrl.course = '';
+            ctrl.course_section = '';
+            ctrl.schedules = [];
+
+            ctrl.selectSchedule = function( index, schedule ){
+                var days = schedule.weekdays ? schedule.weekdays.split('') : [],
+                    campus = ctrl.profile.section( ctrl.course_section ).campus();
+
+                $scope.$parent.masterList[ ctrl.course ] = {
+                    code: ctrl.course,
+                    section: ctrl.course_section,
+                    schedule: schedule,
+                    sch_index: index,
+                    campus: campus,
+                    days : {}
+                };
+
+                for(var i=0;i<days.length;++i){
+                    $scope.$parent.masterList[ ctrl.course ].days[ days[i] ] = true;
+                }
+
+                console.log('select', schedule );
+            };
+
+            ctrl.selectSection = function(){
+                ctrl.section = ctrl.profile.section( ctrl.course_section );
+                ctrl.schedules = ctrl.profile.schedules( ctrl.course_section );
+                console.log('change', ctrl.course_section, ctrl.schedules );
+            };
+
+            ctrl.removeCourse = function(){
+                delete $scope.$parent.courses[ ctrl.course ];
+                delete $scope.$parent.masterList[ ctrl.course ];
+                console.log('remove', ctrl.course );
+            };
+
+            ctrl.checkSchduleIsActive = function( index ){
+                var course = $scope.$parent.masterList[ ctrl.course ];
+                if( course ){
+                    return course['sch_index'] === index && course['section'] === ctrl.course_section;
+                }
+                return false;
+            };
+
+            ctrl.section_code = '1234-007';
+            ctrl.course_title = 'Temp Course';
+            ctrl.course_duration = 'Monday - Thursday';
+            ctrl.delivery_method = 'Some Format';
+            ctrl.weekdays = 'MTWR';
+
+            console.log( 'card', $scope, ctrl, $scope.$ctrl, $scope.$ctrl.course_duration, $scope.$ctrl.profile );
+
+            console.log( 'later', ctrl.course, ctrl.course_section );
+        },
+       bindings: {
+           profile: '='
+       }
+    });
+
+    app.filter('reverse',function(){
+        return function( items ){
+            var resolve = items;
+
+            // if is an object instead of an array, coerce to an array in order to reverse
+            if( !angular.isArray( resolve ) ){
+                resolve = Object.values(resolve);
+            }
+
+            // reverse array order
+            return resolve.slice().reverse();
+        }
+    });
+
+    app.filter('moment',function(){
+        return function( moment ){
+            return moment.format('DD MMM YYYY');
+        }
+    });
+
+    app.controller('MasterController', function($scope, $profile, $storage, $q, $location ){
+        $scope.hand = 'bob';
+        $scope.courses = {};
+        $scope.masterList = {};
+        $scope.letters = 'DMTWRFS'.split('');
+        $scope.retrieveCourse = function( code, suppressErrors ){
+            code = code || $scope.course_code;
+            var course = $storage.get( code );
+
+            if( $scope.masterList[ code ] ) {
+                // already displayed. change existing
+                if( !suppressErrors ) {
+                    swal({
+                        title: "Oops",
+                        text: "The course has already been added",
+                        timer: 4000,
+                        type: "warning"
+                    });
+                }
+                return;
+            }
+            $profile.get(code).then(
+                function (response) {
+                    if (response && response.data && response.data['co']) {
+                        var profile = response.data['co'];
+
+                        // store data for later use
+                        $storage.set(code, profile);
+
+                        // create course item
+                        $scope.courses[code] = $storage.get( code );
+                        $scope.masterList[code] = {};
+
+                        console.log('success', profile);
+                    }
+                },
+                function (error) {
+                    console.error('error', error);
+
+                    // notify user if error
+                    if( !suppressErrors ) {
+                        swal({
+                            title: "Uh oh!",
+                            text: (error.data && error.data['text'] ? error.data['text'] : "Something went wrong!"),
+                            timer: 4000,
+                            type: "error"
+                        });
+                    }
+                }
+            );
+
+            /*if( course ) {
+                // create course item
+                $scope.courses[code] = ( profile );
+                $scope.masterList[code] = {};
+            }
+            else {
+                // put ajax call here
+            }*/
+            $scope.course_code = '';
+        };
+
+        (function($s,$l){
+            var s = $l.search(), t = s['q'], q = t ? t.split(',') : [];
+            if( q.length ){
+                for(var i=0,c;i<q.length;++i){
+                    c = q[i];
+                    if( c.match(/^\d{4}$/) ){
+                        $s.retrieveCourse(c,true);
+                    }
+                }
+            }
+            console.log('location', s, t ,q );
+        })($scope,$location)
+    });
+</script>
+</body>
+</html>

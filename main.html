@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Course Scheduler</title>
+    <!--link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" crossorigin="anonymous" /-->
+    <link rel="stylesheet" href="css/materia/bootstrap.min.css" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" crossorigin="anonymous" />
+</head>
+<body>
+
+<script type="text/template" id="course_section_item_tmpl">
+    <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 course-card">
+        <div class="card text-center" >
+            <div class="card-header text-left">
+                <i class="fa fa-book"></i> Course
+            </div>
+            <div class="card-body">
+                <h4 class="card-title">{{ section_code }} {{course_title}}</h4>
+                <p class="card-text">{{course_title}}</p>
+            </div>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">{{course_duration}}</li>
+                <li class="list-group-item">{{delivery_method}}</li>
+                <li class="list-group-item">{{weekdays}}</li>
+            </ul>
+            <div class="card-body">
+                <a href="#" class="card-link btn btn-info course-change"><i class="fa fa-edit"></i> Change</a>
+                <a href="#" class="card-link btn btn-danger course-remove"><i class="fa fa-remove"></i> Remove</a>
+            </div>
+        </div>
+    </div>
+</script>
+
+<div class="">
+
+    <ul class="nav nav-tabs nav-fill" id="myTab" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">Add Course</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">Select</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="contact-tab" data-toggle="tab" href="#contact" role="tab" aria-controls="contact" aria-selected="false">Compare</a>
+        </li>
+    </ul>
+
+    <br />
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm">
+                <div class="tab-content" id="myTabContent">
+                    <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+
+                        <div class="input-group" id="step1">
+                            <span class="input-group-addon" id="basic-addon1">#</span>
+                            <input type="text" class="form-control" placeholder="Course Code" aria-label="Course Code" aria-describedby="basic-addon1" id="course_code">
+
+                            <span class="input-group-btn">
+                                <button class="btn btn-primary" type="button" id="course_code_finder"><i class="fa fa-search"></i> Search</button>
+                            </span>
+                        </div>
+
+                        <br />
+
+                        <div class="input-group" id="step2">
+                            <span class="input-group-addon" id="basic-addon2">?</span>
+                            <select class="form-control" placeholder="Section Code" aria-label="Section Code" aria-describedby="basic-addon2" id="section_codes">
+                                <option></option>
+                            </select>
+                            <span class="input-group-btn">
+                                <button class="btn btn-success" type="button" id="section_codes_chooser"><i class="fa fa-hand-pointer-o"></i> Select</button>
+                            </span>
+                        </div>
+
+                        <br />
+
+                        <div class="row" id="course_section_container">
+
+                        </div>
+
+                    </div>
+                    <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+                        c2...
+                    </div>
+                    <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">
+                        d3...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script src="https://code.jquery.com/jquery-3.2.1.min.js" type="text/javascript" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" type="text/javascript" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" type="text/javascript" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js" type="text/javascript" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.19.1/moment.min.js" type="text/javascript" crossorigin="anonymous"></script>
+<script type="text/javascript">
+
+    window.Scheduler = new function(){
+        var $this = this;
+        $this.courses = {};
+        $this.errors = [];
+
+        // check if course data is already pulled
+        $this.hasCourse = function( code ){
+            return code in $this.courses & !!$this.courses[code];
+        };
+
+        // pull course data
+        $this.getCourse = function( code, callback ){
+            var path = 'course.php?c=*';
+            callback = callback || function(){};
+
+            // if already has course, don't pull again
+            if( $this.hasCourse( code ) ){
+
+                // run callback
+                if( typeof callback === 'function' ){
+                    callback( $this.courses[code], code );
+                }
+
+                return 2;
+            }
+
+            // coerce code to string
+            code = code.toString();
+
+            // if code matches 4 digits
+            if( code.match(/^\d{4}$/) ){/*
+
+                jQuery.ajax({
+                    url:  path.replace('*',code),
+                    type: 'GET',
+                    success: function( response ){
+                        if( response && response['co'] ){
+
+                            $this.courses[code] = new $this.classes.CourseObj( response['co'] );
+
+                            // run callback
+                            if( typeof callback === 'function' ){
+                                callback( $this.courses[code], code );
+                            }
+                        } else {
+                            $this.errors.push({ code: 1, text: 'Course not found'});
+                        }
+                    },
+                    error: function(a,b,c){
+                        console.log('error',a,b,c);
+                    }
+                });*/
+
+                jQuery.get( path.replace('*',code) , function( response ){
+                    if( response && response['co'] ){
+
+                        $this.courses[code] = new $this.classes.CourseObj( response['co'] );
+
+                        // run callback
+                        if( typeof callback === 'function' ){
+                            callback( $this.courses[code], code );
+                        }
+                    } else {
+                        $this.errors.push({ code: 1, text: 'Course not found'});
+                    }
+                }).fail(function(a,b,c){
+                    $this.errors.push({ code: 1, text: 'Course not found', data: [a,b,c] });
+                });
+                return 1;
+            }
+
+            // fail when not matched
+            return 0;
+        };
+
+        // retrieve stored course data
+        $this.course = function( code ){
+            if( $this.hasCourse( code ) ) {
+                return $this.courses[code];
+            }
+            return false;
+        };
+
+        // pull course data
+        $this.getSection = function( courseCode, sectionCode ){
+
+            // get course if not already gotten
+            if( !$this.hasCourse( courseCode ) ){
+                if( !$this.getCourse( courseCode ) ){
+                    return false;
+                }
+            }
+
+            var course = $this.course(courseCode),
+                section = course ? course.section( sectionCode ) : null;
+
+            return section;
+        };
+
+        // get sections from course
+        $this.getSections = function( code ){
+
+            // get course if not already gotten
+            if( !$this.hasCourse( code ) ){
+                if( !$this.getCourse( code ) ){
+                    return false;
+                }
+            }
+
+            var course = $this.course(code);
+
+            return course ? course.sections() : false;
+        };
+
+
+        // get list of seciton codes
+        $this.getSectionList = function( code ){
+            var sections;
+
+            if( $this.getCourse( code ) ){
+                sections = $this.getSections( code );
+                return _.map(sections,function(a){return a.c.toString();});
+            }
+
+            // sections are not yet loaded
+            return [];
+        };
+
+        $this.getLastError = function(){
+            return $this.errors[-1];
+        };
+
+        $this.reportError = function( target, errorText, errorCode, errorData ){
+            $this.errors.push({ code: errorCode, text: errorText, data: errorData });
+            $(target||window).trigger('scheduler.events.error', errorData) ;
+        }
+
+    };
+    Scheduler.classes = {};
+
+    // create prototype for custom classes
+    Scheduler.classes.prototype = new (function (){
+        this._parseWeekdays = function( days ){
+            var map = '';
+            for(var i=0;i<days.length;++i){
+                switch( days[i]){
+                    case 'Saturday': map+= 'S'; break;
+                    case 'Sunday': map+= 'D'; break;
+                    case 'Monday': map+= 'M'; break;
+                    case 'Tuesday': map+= 'T'; break;
+                    case 'Wednesday': map+= 'W'; break;
+                    case 'Thursday': map+= 'R'; break;
+                    case 'Friday': map+= 'F'; break;
+                }
+            }
+            return map;
+        };
+        this._convertSchedules = function( data ){
+
+            if( !data ) throw new TypeError("Null data cannot be passed.");
+            if( data.constructor !== Array.prototype.constructor ) throw new TypeError("Data must be an Array.");
+
+            var schedules = [], schedule;
+
+            for(var i=0,sch,matches;i<data.length;++i){
+                schedule = {};
+                sch = data[i];
+
+                // get class start and end dates
+                matches = sch.dt.match(/^(\d{2} \w{3} \d{4}) ?-? ?(\d{2} \w{3} \d{4})?/);
+                matches.shift();
+                schedule.startDate = matches[0] ? moment(matches[0], 'DD MMM YYYY') : null;
+                schedule.endDate = matches[1] ? moment(matches[1], 'DD MMM YYYY') : null;
+
+                // get class time period duration
+                schedule.period = sch.t;
+
+                // get class days of week
+                schedule.weekdays = this._parseWeekdays( sch.dw );
+
+                schedules.push( schedule );
+            }
+
+            return schedules;
+        };
+    });
+
+    // create course custom class
+    Scheduler.classes.CourseObj = function ( data ){
+        if( !data ) throw new TypeError("Null data cannot be passed.");
+        if( data.constructor !== Object.prototype.constructor ) throw new TypeError("Data must be an Object.");
+
+        this._code = data['c'] ? data['c'].toString() : undefined;
+
+        // retrieve course data object or its properties (when specified)
+        this.get = function( prop ){
+            if( prop ){
+
+                // define aliases
+                switch( prop ){
+                    case 'id' :
+                    case 'index' : prop = 'i'; break;
+                    case 'code' : prop = 'c'; break;
+                    case 'title' :
+                    case 'name' : prop = 'n'; break;
+                    case 'sections' : prop = 'se'; break;
+                    case 'availability' : prop = 'av'; break;
+                    case 'keywords' : prop = 'k'; break;
+                }
+
+                if( prop in data ){
+                    // return course data property value
+                    return data[prop];
+                }
+
+                return false;
+            }
+
+            // return course data object
+            return data;
+        };
+
+        // retrieve section data object
+        this.section = function( code ){
+
+            // coerce code to string
+            code = code.toString();
+
+            // if code is valid section code
+            if( code.match(/^\d{3}$/) && data.se && data.se.length ){
+
+                // loop to find code
+                for(var i=0; i<data.se.length;++i){
+                    if( code === data.se[i].c.toString() ){
+                        return new Scheduler.classes.SectionObj( data.se[i], this._code );
+                    }
+                }
+            }
+
+            return false;
+        };
+
+        // retrieve list of section data objects
+        this.sections = function(){
+            var sections = [];
+            if( data.se && data.se.length ){
+                for(var i=0,s; i<data.se.length;++i){
+                    s = new Scheduler.classes.SectionObj( data.se[i], this._code );
+                    sections.push(s);
+                }
+            }
+            return sections;
+        };
+
+        // retrieve array of section codes for a course
+        this.sectionList = function(){
+
+            // if sections exist, return list of section codes
+            if( data['se'] ) {
+                return _.map(data.se, function (a) {
+                    return a.c.toString();
+                });
+            }
+
+            // available sections do not exist
+            return [];
+        };
+
+        // add schedule method to data
+        this.schedules = function( code ){
+
+            // coerce code to string
+            code = code.toString();
+
+            // if code is valid section code
+            if( code.match(/^\d{3}$/) && data.se && data.se.length ){
+
+                // loop to find code
+                for(var i=0; i<data.se.length;++i){
+                    if( code === data.se[i].c.toString() ){
+                        return this._convertSchedules(data.se[i].s);
+                    }
+                }
+            }
+
+            return false;
+        };
+    };
+    Scheduler.classes.CourseObj.prototype = Scheduler.classes.prototype;
+
+    // create section custom class
+    Scheduler.classes.SectionObj = function( data, courseCode ){
+        courseCode = courseCode ? courseCode.toString() : '';
+        if( !data ) throw new TypeError("Null data cannot be passed.");
+        if( data.constructor !== Object.prototype.constructor ) throw new TypeError("Data must be an Object.");
+        if( !courseCode || !courseCode.match(/^\d{4}$/) ) throw new TypeError("Requires valid course code.");
+
+        this._code = data['c'] ? data['c'].toString() : undefined;
+        this._fullCode = this._code ? courseCode + '-' + this._code : undefined;
+
+        this.get = function( prop ){
+            if( prop ){
+
+                // define aliases
+                switch( prop ){
+                    case 'id' :
+                    case 'index' : prop = 'i'; break;
+                    case 'code' : prop = 'c'; break;
+                    case 'title' :
+                    case 'action' : prop = 'ac'; break;
+                    case 'schedules' : prop = 's'; break;
+                    case 'availability' : prop = 'av'; break;
+                    case 'delivery' : prop = 'dm'; break;
+                    case 'isPublic' : prop = 'pe'; break;
+                    case 'campus' : prop = 'ca'; break;
+                    case 'cost' :
+                    case 'fee' : prop = 'f'; break;
+                }
+
+                // return course data property value
+                if( prop in data ){
+                    return data[prop];
+                }
+
+                return false;
+            }
+
+            // return course data object
+            return data;
+        };
+
+        this.course = function(){
+            return $sch.course( courseCode );
+        };
+
+        this.code = function(){
+            return this._fullCode;
+        };
+
+        this.title = function(){
+            return this.course().get('title');
+        };
+
+        // add schedule method to data
+        this.schedules = function(){
+
+            // coerce code to string
+            code = this._code;
+
+            // if code is valid section code
+            if( code.match(/^\d{3}$/) && data.s && data.s.length ){
+
+                return this._convertSchedules(data.s);
+            }
+
+            return false;
+        };
+    };
+    Scheduler.classes.SectionObj.prototype = Scheduler.classes.prototype;
+
+    // set easy alias for Scheduler framework
+    var $sch = Scheduler;
+
+    ;(function($){
+
+        var $course_section_tmpl = $('#course_section_item_tmpl').html();
+
+        function clearFields(){
+            $('#step2').hide();
+            $('#course_code').val('');
+            $('#section_codes').html('');
+        }
+
+        $('#course_code_finder').on('click',function(e){
+            var course = $('#course_code').val();
+            if( course && course.match(/^\d{4}$/) ) {
+                $sch.getCourse( course, function( c ){
+                    var section_codes;
+                    if( c && (section_codes = c.sections()) ) {
+                        $('#section_codes').html('<option>' + section_codes.join('</option><option>') + '</option>');
+                        $('#step2').show();
+                        console.log(c);
+                    }
+                    else {
+                        alert('error');
+                    }
+                });
+            }
+        });
+
+        $('#section_codes_chooser').on('click',function(e){
+            var course = $('#course_code').val(),
+                section = $('#section_codes').val(),
+                template = $course_section_tmpl,
+                template_replacements = [],
+                item = $sch.getSection( course , section )
+            ;
+
+            if( item ){
+                template_replacements.push([ /{{\s*?section_code\s*?}}/g, item.code() ]);
+                template_replacements.push([ /{{\s*?course_title\s*?}}/g, item.title() ]);
+                template_replacements.push([ /{{\s*?delivery_method\s*?}}/g, item.get('delivery') ]);
+                var start, end, weekdays = '', i, schedules = item.schedules();
+                for(i=0;i<schedules.length;++i){
+                    if( !start ) start = schedules[i].startDate;
+                    else if( start < schedules[i].startDate ) {
+                        start = schedules[i].startDate;
+                    }
+                    if( !end ) end = schedules[i].endDate;
+                    else if( end > schedules[i].endDate ) {
+                        end = schedules[i].endDate;
+                    }
+                    weekdays += schedules[i].weekdays;
+                }
+                weekdays = _.uniq(weekdays.split('')).join('');
+                template_replacements.push([ /{{\s*?course_duration\s*?}}/g, start.format('DD MMM YYYY') + ( end ? ' - ' + end.format('DD MMM YYYY') : '' ) ]);
+                template_replacements.push([ /{{\s*?weekdays\s*?}}/g, weekdays ]);
+
+                for(var j=0;j<template_replacements.length;++j){
+                    console.log('replacement', j, template_replacements[j][0], template_replacements[j][1] );
+                    template = template.replace( template_replacements[j][0], template_replacements[j][1] );
+                }
+            }
+
+            console.log('section', item );
+            console.log('template', template );
+            $('#course_section_container').append(template);
+            clearFields();
+        });
+
+        $('#course_section_container').on('click','.course-remove',function(e){
+            console.log('remmove me!!');
+            $(this).parentsUntil('.course-card').remove();
+        });
+
+        clearFields();
+
+    })(jQuery);
+
+</script>
+</body>
+</html>
