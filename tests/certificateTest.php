@@ -11,6 +11,6 @@ include_once dirname(__DIR__) . '/vendor/autoload.php';
 $r = \SCS\Entity\Certificate::getJsonFromResource();
 ##var_dump(strlen($c));
 $l = \SCS\Entity\Certificate::getList();
-print_r($l);
+#print_r($l);
 $c = new \SCS\Entity\Certificate('CE0001');
-#var_dump(($c->d_certificate_name));
+var_dump(($c->d_certificate_name));
