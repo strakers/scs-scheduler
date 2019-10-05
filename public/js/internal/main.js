@@ -69,3 +69,48 @@ app.factory( '$cache', function(){
         }
     }
 });
+
+
+/**
+ * ---------------------------------------------------------------------------------------------------------------------
+ * Filter Functions
+ * ---------------------------------------------------------------------------------------------------------------------
+ */
+
+// object/array order reversal filter
+app.filter('reverse',function(){
+    return function( items ){
+        var resolve = items;
+
+        // if is an object instead of an array, coerce to an array in order to reverse
+        if( !angular.isArray( resolve ) ){
+            resolve = Object.values(resolve);
+        }
+
+        // reverse array order
+        return resolve.slice().reverse();
+    }
+});
+
+// date filter
+app.filter('moment',function(){
+    return function( timeString ){
+        return new moment(timeString).format('DD MMM YYYY');
+    }
+});
+
+// https://jsfiddle.net/OriDrori/1pgbwgtg/4/
+// join filter
+app.filter('join', function () {
+    return function join(array, separator, prop) {
+        if (!Array.isArray(array)) {
+            return array; // if not array return original - can also throw error
+        }
+
+        separator = separator || ', ';
+
+        return (!!prop ? array.map(function (item) {
+            return item[prop];
+        }) : array).join(separator);
+    };
+});
