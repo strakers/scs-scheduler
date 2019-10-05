@@ -48,7 +48,7 @@ class Certificate extends BaseEntity
                 foreach ($group->courses as $course) {
                     if (!array_key_exists($course->d_course_code, $courses)) {
                         if ($entity = new Course($course->d_course_code)) {
-                            if( $sections = $entity->sections() ){
+                            if( $sections = $entity->export() ){
                                 $courses[$course->d_course_code] = $sections;
                             }
                         }
@@ -62,7 +62,7 @@ class Certificate extends BaseEntity
                 foreach ($group->courses as $course) {
                     if (!array_key_exists($course->d_course_code, $courses)) {
                         if ($entity = new Course($course->d_course_code)) {
-                            if( $sections = $entity->sections() ){
+                            if( $sections = $entity->export() ){
                                 $courses[$course->d_course_code] = $sections;
                             }
                         }
@@ -72,5 +72,15 @@ class Certificate extends BaseEntity
         }
 
         return array_values($courses);
+    }
+
+    public function export()
+    {
+        return [
+            'd_certificate_id' => $this->d_certificate_id,
+            'd_certificate_code' => $this->d_certificate_code,
+            'd_certificate_name' => $this->d_certificate_name,
+            'courses' => $this->courses()
+        ];
     }
 }

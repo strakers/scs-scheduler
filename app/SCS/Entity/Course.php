@@ -23,11 +23,16 @@ class Course extends BaseEntity
             unset($section->d_semester_begin_date);
             unset($section->start_month);
         }
+        return $sections;
+    }
+
+    public function export()
+    {
         return [
             'd_course_id' => $this->d_course_id,
             'd_course_code' => $this->d_course_code,
             'd_course_name' => $this->d_course_name,
-            'sections' => $sections
+            'sections' => $this->sections()
         ];
     }
 }

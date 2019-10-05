@@ -61,6 +61,8 @@ abstract class BaseEntity
         return $this->json;
     }
 
+    abstract public function export();
+
     /**
      * @param $name
      * @param string $default

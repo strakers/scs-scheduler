@@ -20,7 +20,7 @@ $app->get('/',function ($req, $res, $args) {
 
 $app->get('/api/course/{code}',function ($req, $res, $args) {
     if( ($course = new Course( $args['code'] )) && !$course->isEmpty() ){
-        return $res->withJson( $course->sections() );
+        return $res->withJson( $course->export() );
     }
     return $res->withJson(null,404);
 });
@@ -31,7 +31,7 @@ $app->get('/api/courses',function ($req, $res, $args) {
 
 $app->get('/api/certificate/{code}',function ($req, $res, $args) {
     if( ($certificate = new Certificate( $args['code'] )) && !$certificate->isEmpty() ){
-        return $res->withJson( $certificate->courses() );
+        return $res->withJson( $certificate->export() );
     }
     return $res->withJson(null,404);
 });
