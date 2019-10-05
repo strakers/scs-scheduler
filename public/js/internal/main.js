@@ -15,22 +15,22 @@
      * ---------------------------------------------------------------------------------------------------------------------
      */
 
-    app.factory('$scs', function($q, $http) {
+    app.factory( '$scs', function( $q, $http ) {
         return {
 
-            getCourseByCode: function ( code ){
+            'getCourseByCode' : function ( code ){
                 return $http.get('api/course/' + code);
             },
 
-            getCertificateByCode: function ( code ){
+            'getCertificateByCode' : function ( code ){
                 return $http.get('api/certificate/' + code);
             },
 
-            getCertificates: function (){
+            'getCertificates' : function (){
                 return $http.get('api/certificates');
             },
 
-            getCourses: function (){
+            'getCourses' : function (){
                 return $http.get('api/courses');
             }
 
@@ -45,7 +45,7 @@
      */
 
     // factory for storing and retrieving course data
-    app.factory("$storage", function($q, $http){
+    app.factory( '$storage', function(){
         return {
             _store: {},
             get: function( code ){
