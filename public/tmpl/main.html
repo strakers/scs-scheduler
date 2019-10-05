@@ -2,9 +2,152 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>UofTSCS Course Scheduler</title>
+    <meta name="keywords" content="course, courses, certificate, schedule, time, uoft, university, section, class, toronto, continuing, education, study, studies" />
+    <meta name="description" content="Not sure which courses to take? Use this tool to help you decide a suitable schedule for taking your courses with the University of Toronto, School of Continuing Studies." />
+    <!--link rel="stylesheet" href="css/external.css.php" />
+    <link rel="stylesheet" href="css/internal.css.php" /-->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/sweetalert2/6.6.0/sweetalert2.min.css" crossorigin="anonymous" />
+    <link rel="stylesheet" href="css/materia/bootstrap.min.css" />
+    <link rel="stylesheet" href="css/main.css" />
 </head>
-<body>
+<body ng-app="scheduler">
 
+<div ng-controller="MasterController as ctrl">
+
+    <!-- NAVIGATION -------------->
+    <nav class="menu" role="navigation">
+        <ul class="nav nav-tabs nav-fill" id="myTab" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" id="courses-tab" data-toggle="tab" href="#courses" role="tab" aria-controls="courses" aria-selected="true">Select Courses</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="schedule-tab" data-toggle="tab" href="#schedule" role="tab" aria-controls="schedule" aria-selected="false">Compare Schedules</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="debugger-tab" data-toggle="tab" href="#debugger" role="tab" aria-controls="debugger" aria-selected="false">View Data</a>
+            </li>
+        </ul>
+    </nav>
+
+    <br />
+
+    <!-- MAIN CONTENT -------------->
+    <div role="main" class="container-fluid">
+        <div class="row">
+            <div class="col-sm">
+                <div class="tab-content" id="tabSections">
+
+                    <!-- TAB -------------->
+                    <div class="tab-pane fade show active" id="courses" role="tabpanel" aria-labelledby="courses-tab">
+
+                        <!-- search course -->
+                        <div class="col-sm-12 col-md-12 col-lg-8 col-xl-6 search-row" data-label="Find by course code">
+                            <form name="course_finder" ng-submit="retrieveCourse()">
+                                <div class="input-group">
+                                    <span class="input-group-addon" id="basic-addon1"><i class="fa fa-hashtag fa-fw"></i></span>
+                                    <input type="text" class="form-control" placeholder="Course Code" aria-label="Course Code" aria-describedby="basic-addon1" ng-model="current_course_code">
+
+                                    <span class="input-group-btn">
+                                        <button class="btn btn-primary" type="submit" id="course_code_finder"><i class="fa fa-plus"></i> Add Course</button>
+                                    </span>
+                                </div>
+
+                                <pre ng-if="ctrl.debugging">{{ course_finder | json }}</pre>
+                            </form>
+                        </div>
+
+                        <!-- search certificate -->
+                        <div class="col-sm-12 col-md-12 col-lg-8 col-xl-6 search-row" data-label="Find courses by certificate">
+                            <form name="course_finder" ng-submit="retrieveCoursesByCertificate()">
+                                <div class="input-group">
+                                    <span class="input-group-addon" id="basic-addon2"><i class="fa fa-certificate fa-fw"></i></span>
+                                    <select type="text"  list="certificate_list" class="form-control" placeholder="Certficate" aria-label="Certficate" aria-describedby="basic-addon2" ng-model="current_certificate_code">
+                                        <option></option>
+                                        <option ng-repeat="certificate in certificateList | orderBy:'name'" ng-value="certificate.code">{{ certificate.name }}</option>
+                                    </select>
+
+                                    <span class="input-group-btn">
+                                        <button class="btn btn-primary" type="submit" id="certificate_code_finder"><i class="fa fa-search"></i> By Certificate</button>
+                                    </span>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- controls -->
+                        <div class="col-sm-12 col-md-12 col-lg-8 col-xl-6 text-right search-row" data-label="">
+                            <button class="btn btn-danger" type="button" ng-click="removeAllCourses()"><i class="fa fa-remove"></i> Clear All Courses</button>
+                        </div>
+
+                        <br />
+                        <hr />
+
+                        <div class="row" id="course_section_container">
+                            <course-card ng-repeat="course in courses | reverse" profile="course" class="col-sm-6 col-md-4 col-lg-3 col-xl-2 course-card"></course-card>
+                        </div>
+
+                    </div>
+
+
+                    <!-- TAB -------------->
+                    <div class="tab-pane fade" id="schedule" role="tabpanel" aria-labelledby="schedule-tab">
+                        <div class="col-sm-12">
+                            <table class="table table-bordered table-responsive-sm">
+                                <thead class="thead-inverse">
+                                <tr data-label="Headings">
+                                    <th class="text-center">Course(s)</th>
+                                    <th class="text-center">Sun</th>
+                                    <th class="text-center">Mon</th>
+                                    <th class="text-center">Tue</th>
+                                    <th class="text-center">Wed</th>
+                                    <th class="text-center">Thu</th>
+                                    <th class="text-center">Fri</th>
+                                    <th class="text-center">Sat</th>
+                                </tr>
+                                </thead>
+                                <tbody ui-sortable ng-model="masterList">
+                                <tr ng-repeat="item in masterList" ng-show="item.code">
+                                    <th class="text-center course-handle">{{ item.code }}<br />{{ item.title }}</th>
+
+                                    <td class="text-center no-padding" ng-repeat="letter in letters">
+                                        <schedule-card block="item.days[letter]" campus="item.campus" delivery="item.delivery"></schedule-card>
+                                    </td>
+
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+
+                    <!-- TAB -------------->
+                    <div class="tab-pane fade" id="debugger" role="tabpanel" aria-labelledby="debugger-tab">
+                        <div class="card text-info"><div class="card-body align-middle">{{ getScheduleURL() }} <div class="btn-group pull-right"><button class="btn btn-info" type="button">Copy</button></div></div></div>
+                        <pre><code>{{ masterList | json }}</code></pre>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script src="https://code.jquery.com/jquery-3.2.1.min.js" type="text/javascript" crossorigin="anonymous"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js" type="text/javascript" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" type="text/javascript" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" type="text/javascript" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js" type="text/javascript" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.19.1/moment.min.js" type="text/javascript" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/sweetalert2/6.6.0/sweetalert2.min.js" type="text/javascript" crossorigin="anonymous"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular-animate.min.js" type="text/javascript" crossorigin="anonymous"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js" type="text/javascript" crossorigin="anonymous"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/angular-ui/0.4.0/angular-ui.min.js" type="text/javascript" crossorigin="anonymous"></script>
+<script src="js/internal/main.js" type="text/javascript"></script>
+<script src="js/internal/filters.js" type="text/javascript"></script>
+<script src="js/internal/components.js" type="text/javascript"></script>
+<script src="js/internal/controllers.js" type="text/javascript"></script>
 </body>
 </html>
