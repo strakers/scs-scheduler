@@ -22,6 +22,7 @@ class Course extends BaseEntity
             unset($section->instructors);
             unset($section->d_semester_begin_date);
             unset($section->start_month);
+            unset($section->d_section_self_paced_max_days);
         }
         return $sections;
     }
