@@ -97,7 +97,7 @@ abstract class BaseEntity
         $path = self::RESOURCE . $resource_base . '/' . $resource_key . '.json';
 
         // retrieve json from server path
-        if($json = file_get_contents($path)){
+        if($json = @file_get_contents($path)){
             return $json;
         }
 
