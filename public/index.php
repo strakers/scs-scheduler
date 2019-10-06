@@ -19,7 +19,8 @@ $container = $app->getContainer();
 $app->get('/', HomeController::class);
 
 $app->group('/api',function( App $group ){
-    $group->get('/course/{code}', ApiResourceController::class . ':course');
+    $group->get('/course/search', ApiResourceController::class . ':searchCourseByName');
+    $group->get('/course/{code:\d+}', ApiResourceController::class . ':course');
     $group->get('/courses', ApiResourceController::class . ':courses');
     $group->get('/certificate/{code}', ApiResourceController::class . ':certificate');
     $group->get('/certificates', ApiResourceController::class . ':certificates');
