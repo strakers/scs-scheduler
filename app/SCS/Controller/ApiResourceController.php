@@ -48,6 +48,9 @@ class ApiResourceController
                 }
             }
         }
+        usort($matches, function($a, $b){
+            return strcmp($a['name'],$b['name']);
+        });
         return $res->withJson( $matches );
     }
 
