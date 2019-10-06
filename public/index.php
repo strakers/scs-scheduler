@@ -12,6 +12,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use SCS\Entity\Course;
 use SCS\Entity\Certificate;
+use SCS\Controller\ApiResourceController;
 // todo: create Error class for return 404 messages when resource not found
 
 $app = new \Slim\App();
@@ -25,31 +26,16 @@ $app->get('/',function ($req, $res, $args) {
 });
 
 // ---------------------------------------------------------------------------------------------------------------------
-$app->get('/api/course/{code}',function ($req, $res, $args) {
-    if( ($course = new Course( $args['code'] )) && !$course->isEmpty() ){
-        return $res->withJson( $course->export() );
-    }
-    return $res->withJson(null,404);
-});
+$app->get('/api/course/{code}',ApiResourceController::class . ':course');
 
 // ---------------------------------------------------------------------------------------------------------------------
-$app->get('/api/courses',function ($req, $res, $args) {
-    return 'hello world / courses';
-});
+$app->get('/api/courses',ApiResourceController::class . ':courses');
 
 // ---------------------------------------------------------------------------------------------------------------------
-$app->get('/api/certificate/{code}',function ($req, $res, $args) {
-    if( ($certificate = new Certificate( $args['code'] )) && !$certificate->isEmpty() ){
-        return $res->withJson( $certificate->export() );
-    }
-    return $res->withJson(null,404);
-});
+$app->get('/api/certificate/{code}',ApiResourceController::class . ':certificate');
 
 // ---------------------------------------------------------------------------------------------------------------------
-$app->get('/api/certificates',function ($req, $res, $args) {
-    $list = Certificate::getList();
-    return $res->withJson($list);
-});
+$app->get('/api/certificates',ApiResourceController::class . ':certificates');
 
 // ---------------------------------------------------------------------------------------------------------------------
 
