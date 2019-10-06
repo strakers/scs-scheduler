@@ -7,7 +7,9 @@
         "vlucas/phpdotenv": "^3.6",
         "slim/slim": "^3.12",
         "slim/twig-view": "^2.5",
-        "slim/php-view": "^2.2"
+        "slim/php-view": "^2.2",
+        "guzzlehttp/psr7": "^1.6",
+        "http-interop/http-factory-guzzle": "^1.0"
     },
     "license": "GNU General Public License v3.0",
     "authors": [
