@@ -13,6 +13,7 @@ use Slim\Http\Response;
 use SCS\Entity\Course;
 use SCS\Entity\Certificate;
 
+
 /**
  * Class ApiResourceController
  * @package SCS\Controller
@@ -32,6 +33,22 @@ class ApiResourceController
             return $res->withJson( $course->export() );
         }
         return $res->withJson(null,404);
+    }
+
+    public function searchCourseByName(Request $req, Response $res, array $args)
+    {
+        $query = $req->getQueryParams();
+        $matches = [];
+        if( array_key_exists('q', $query ) && strlen($query['q']) > 0 ){
+            if($list = Course::getList()) {
+                foreach ($list as $course) {
+                    if( stristr( $course['name'], $query['q']) ){
+                        $matches[] = $course;
+                    }
+                }
+            }
+        }
+        return $res->withJson( $matches );
     }
 
     /**
