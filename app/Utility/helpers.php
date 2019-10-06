@@ -42,3 +42,17 @@ if( !function_exists('getValueByKey')){
         return array_key_exists($key, $data) ? $data[$key] : $default;
     }
 }
+
+if( !function_exists( 'app_path')){
+    function app_path( $path = '' ){
+        $path = preg_replace("/[\/\\\]+/",DIRECTORY_SEPARATOR,$path);
+        $path = ($path && strpos($path,DIRECTORY_SEPARATOR) !== 0 ) ? DIRECTORY_SEPARATOR . $path : $path;
+        return dirname(dirname(__DIR__)) . $path;
+    }
+}
+
+if( !function_exists( 'public_path')){
+    function public_path( $path = '' ){
+        return app_path( '/public/' . $path );
+    }
+}
