@@ -119,12 +119,22 @@ abstract class BaseEntity
                 foreach( $root->data as $entity ){
                     if( static::$_key && property_exists($entity, $master_key)){
                         $id = $entity->{$master_key};
-                        $list[ $id ] = $id;
+                        $list[ $id ] = static::getEntityExpressPackage($entity);
                     }
                 }
             }
         }
-        return array_keys($list);
+        return array_values($list);
+    }
+
+    /**
+     * @param $entity
+     * @return mixed
+     */
+    protected static function getEntityExpressPackage($entity )
+    {
+        $master_key = static::$_override_list_key ?: static::$_key;
+        return $entity->{$master_key};
     }
 
     /**
