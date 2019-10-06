@@ -16,6 +16,89 @@ app.controller('MasterController', function ($scope, $res, $cache, $q, $location
     $scope.certificateList = [];
     $scope.letters = 'DMTWRFS'.split('');
 
+    $scope.searchCourse = function(code, suppressErrors){
+
+        code = code || $scope.current_course_code;
+
+        if(code.match(/\d+/)){
+            $scope.retrieveCourse(code, suppressErrors);
+        }
+        else {
+            $scope.searchCourseByText(code, suppressErrors);
+        }
+    };
+
+    $scope.searchCourseByText = function (text, suppressErrors) {
+        text = text || $scope.current_course_code;
+
+        // request data
+        $res.getCoursesByText(text)
+            .then(
+                // success
+                function (response) {
+                    if( response && response.data ){
+
+                        let results = response.data;
+                        let options = {};
+
+                        // check if matching results
+                        if( results.length ) {
+
+                            // if only one match found, load course
+                            if( results.length === 1 ){
+                                $scope.retrieveCourse( results[0], suppressErrors );
+                                return;
+                            }
+
+                            // convert results to key-value pairs
+                            for (let i = 0; i < response.data.length; ++i) {
+                                options[response.data[i].code] = (response.data[i].code + ' ' + response.data[i].name);
+                            }
+
+                            console.info('options',options,results);
+
+                            // for multiple results, display modal to select one course
+                            swal({
+                                title: "Please Select a Course",
+                                type: "info",
+                                input: "select",
+                                inputOptions: options
+                            }).then(
+                                function (selection) {
+                                    if (selection) {
+                                        $scope.retrieveCourse(selection, suppressErrors);
+                                    }
+                                }
+                            );
+                        }
+                        else {
+                            swal({
+                                title: "Sorry!",
+                                text: "We could find any courses with the text \"" + text + '\".',
+                                timer: 4000,
+                                type: "error"
+                            });
+                        }
+                    }
+                },
+
+                //failure
+                function (error) {
+                    console.error('error', error);
+
+                    // notify user if error
+                    if( !suppressErrors ) {
+                        swal({
+                            title: "Uh oh!",
+                            text: (error.data && error.data['text'] ? error.data['text'] : "Something went wrong!"),
+                            timer: 4000,
+                            type: "error"
+                        });
+                    }
+                }
+            );
+    };
+
     $scope.retrieveCourse = function (code, suppressErrors) {
 
         let stored_data;

@@ -32,6 +32,10 @@ app.factory( '$res', function( $http ) {
 
         'getCourses' : function (){
             return $http.get('api/courses');
+        },
+
+        'getCoursesByText' : function ( text ){
+            return $http.get('api/course/search?q=' + text);
         }
 
     };
