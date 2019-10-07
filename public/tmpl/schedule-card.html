@@ -1,0 +1,22 @@
+<div ng-if="$ctrl.block.occupied" class="card bg-warning" ng-repeat="(time,sch) in $ctrl.block.slots">
+    <div class="card-body">
+        <div>
+            <span>
+                <i class="fa fa-long-arrow-right fa-fw"></i>
+                <i class="fa fa-clock-o fa-fw"></i> {{ sch.startDate | moment }}
+            </span>
+            <span ng-if="sch.endDate && sch.startDate !== sch.endDate">
+                <br />
+                <i class="fa fa-long-arrow-left fa-fw"></i>
+                <i class="fa fa-clock-o fa-fw"></i> {{ sch.endDate | moment }}
+            </span>
+            <hr />
+            <div>
+                <strong ng-if="time">{{ time }}</strong>
+                <strong>{{ $ctrl.delivery }}</strong>
+            </div>
+        </div>
+        <hr />
+        <span>{{ $ctrl.campus }}</span>
+    </div>
+</div>

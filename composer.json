@@ -1,0 +1,31 @@
+{
+    "name": "strakez/scs-scheduler",
+    "description": "Compare SCS Course Schedules",
+    "type": "project",
+    "require": {
+        "php": ">=5.6",
+        "vlucas/phpdotenv": "^3.6",
+        "slim/slim": "^3.12",
+        "slim/twig-view": "^2.5",
+        "slim/php-view": "^2.2",
+        "guzzlehttp/psr7": "^1.6",
+        "http-interop/http-factory-guzzle": "^1.0"
+    },
+    "license": "GNU General Public License v3.0",
+    "authors": [
+        {
+            "name": "Steven Straker",
+            "email": "contact@strakez.com",
+            "role": "Developer"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "SCS\\": "app/SCS"
+        },
+        "files": [
+            "app/Utility/helpers.php"
+        ]
+    },
+    "minimum-stability": "stable"
+}

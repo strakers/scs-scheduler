@@ -1,0 +1,40 @@
+
+
+.menu .nav-tabs .nav-link {
+    padding: 1.5rem 1rem;
+}
+
+a[ng-click], button.btn {
+    cursor: pointer;
+}
+
+.card {
+    margin-bottom: 2em;
+}
+
+td.no-padding {
+    padding: 0;
+}
+td.no-padding .card {
+    margin-bottom: 0;
+}
+
+.course-handle {
+    cursor: ns-resize;
+    background-color: aliceblue;
+}
+
+.search-row {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    position: relative;
+}
+
+.search-row:before {
+    content: attr(data-label);
+    position: absolute;
+    top: .25rem;
+    left: 4rem;
+    text-transform: uppercase;
+    font-weight: bold;
+}

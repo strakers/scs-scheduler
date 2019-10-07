@@ -1,0 +1,41 @@
+    <div class="card text-center" ng-init="$ctrl.course = $ctrl.profile.d_course_code">
+        <div class="card-header text-left">
+            <i class="fa fa-book"></i> Course
+        </div>
+        <div class="card-body">
+            <h4 class="card-title">{{ $ctrl.profile.d_course_code }} {{ $ctrl.profile.d_course_name }}</h4>
+            <p class="card-text">{{course_title}}</p>
+        </div>
+        <ul class="list-group list-group-flush" ng-show="$ctrl.profile.sections.length">
+            <li class="list-group-item">
+                <label>Select a Section</label>
+                <div class="form-group">
+                    <div class="input-group">
+                        <span class="input-group-addon" id="basic-addon2"><i class="fa fa-tag"></i></span>
+                        <select class="form-control" aria-label="Section Code" aria-describedby="basic-addon2" id="section_codes" ng-model="$ctrl.section" ng-change="$ctrl.selectSection()">
+                            <option ng-repeat="section_option in $ctrl.profile.sections" ng-value="section_option">{{ section_option.d_course_section_code }} - {{ section_option.instruction_methods }}</option>
+                        </select>
+                    </div>
+                </div>
+            </li>
+            <li class="list-group-item" ng-show="$ctrl.section"><strong>{{ $ctrl.section.instruction_methods }}</strong><span ng-show="$ctrl.section.campuses.length"> ({{ $ctrl.section.campuses | join }})</span></li>
+            <li class="list-group-item" ng-repeat="sch in $ctrl.section.schedules" ng-hide="sch.d_section_schedule_is_tba">
+                <div class="pull-left">
+                    <i class="fa fa-calendar"></i>
+                </div>
+                <div>
+                    <span>{{ sch.d_section_schedule_start_date | moment }}</span><span ng-if="sch.d_section_schedule_end_date"> - {{ sch.d_section_schedule_end_date | moment }}</span>
+                    <br ng-show="sch.d_section_schedule_days.length" /><span class="text-info">{{ sch.d_section_schedule_days | join }}</span><span>{{ (sch.d_section_schedule_start_time ? ( sch.d_section_schedule_days.length ? ' | ' : '' ) + sch.d_section_schedule_start_time : '' ) }}</span>
+                </div>
+            </li>
+        </ul>
+        <ul class="list-group list-group-flush" ng-hide="$ctrl.profile.sections.length">
+            <li class="list-group-item">
+                <span class="text-danger">No schedules are currently available for this course.</span>
+            </li>
+        </ul>
+        <div class="card-body text-right card-action-group">
+            <!--a href="#" class="card-link btn btn-info course-change"><i class="fa fa-edit"></i> Change</a-->
+            <a href class="card-link btn btn-danger course-remove" ng-click="$ctrl.removeCourse()"><i class="fa fa-remove"></i> Remove</a>
+        </div>
+    </div>
