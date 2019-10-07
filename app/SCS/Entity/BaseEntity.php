@@ -92,7 +92,7 @@ abstract class BaseEntity
     public static function getJsonFromResource($resource_key = '' )
     {
         // define variables
-        $resource_base = static::$_override_resource_base ?: strtolower(basename(get_called_class()));
+        $resource_base = static::$_override_resource_base ?: basename(convert_directory_separators(strtolower(get_called_class())));
         $resource_key = $resource_key ?: $resource_base . 's';
         $path = self::RESOURCE . $resource_base . '/' . $resource_key . '.json';
 
