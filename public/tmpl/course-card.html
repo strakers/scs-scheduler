@@ -13,7 +13,9 @@
                     <div class="input-group">
                         <span class="input-group-addon" id="basic-addon2"><i class="fa fa-tag"></i></span>
                         <select class="form-control" aria-label="Section Code" aria-describedby="basic-addon2" id="section_codes" ng-model="$ctrl.section" ng-change="$ctrl.selectSection()">
-                            <option ng-repeat="section_option in $ctrl.profile.sections" ng-value="section_option">{{ section_option.d_course_section_code }} - {{ section_option.instruction_methods }}</option>
+                            <option ng-repeat="section_option in $ctrl.profile.sections" ng-value="section_option">
+                                {{ section_option.d_course_section_code }} - {{ section_option.d_section_is_tba ? 'TBA/': '' }}{{ section_option.instruction_methods }}
+                            </option>
                         </select>
                     </div>
                 </div>
@@ -28,6 +30,7 @@
                     <br ng-show="sch.d_section_schedule_days.length" /><span class="text-info">{{ sch.d_section_schedule_days | join }}</span><span>{{ (sch.d_section_schedule_start_time ? ( sch.d_section_schedule_days.length ? ' | ' : '' ) + sch.d_section_schedule_start_time : '' ) }}</span>
                 </div>
             </li>
+            <li class="list-group-item" ng-show="$ctrl.section.d_section_is_tba"><span class="text-info">{{ $ctrl.section.d_section_is_tba ? 'Schedule is not yet available': ''}}</span></li>
         </ul>
         <ul class="list-group list-group-flush" ng-hide="$ctrl.profile.sections.length">
             <li class="list-group-item">
